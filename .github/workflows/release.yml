@@ -1,0 +1,102 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [centos7, centos8, ubuntu20, ubuntu22, debian10, debian11, debian12]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build package
+        shell: bash
+        run: |
+          set -e
+
+          OS="${{ matrix.os }}"
+          VERSION="${GITHUB_REF#refs/tags/v}"
+
+          echo "=== Building for $OS, version $VERSION ==="
+
+          mkdir -p build/www/server/panel
+          mkdir -p build/www/wwwroot
+          mkdir -p build/www/wwwlogs
+          mkdir -p build/www/backup
+          mkdir -p build/etc/init.d
+
+          echo "=== Copying files ==="
+          # 复制所有必要目录
+          cp -r BTPanel class config data install mod plugin rewrite script vhost build/www/server/panel/
+
+          # 复制必要文件
+          cp runconfig.py runserver.py task.py tools.py build/www/server/panel/
+          cp BT-Panel BT-Task LICENSE license.txt requirements.txt build/www/server/panel/
+          cp init.sh build/etc/init.d/bt
+
+          # 创建运行时目录
+          mkdir -p build/www/server/panel/logs
+          mkdir -p build/www/server/panel/ssl
+          mkdir -p build/www/server/panel/temp
+
+          # 设置权限
+          chmod +x build/etc/init.d/bt
+          chmod +x build/www/server/panel/BT-Panel
+          chmod +x build/www/server/panel/BT-Task
+          chmod +x build/www/server/panel/install/*.sh
+
+          # 写入版本号
+          echo "$VERSION" > build/www/server/panel/data/version.pl
+
+          echo "=== Creating tarball ==="
+          cd build
+          tar -czf ../bt-panel-${OS}.tar.gz .
+          cd ..
+          md5sum bt-panel-${OS}.tar.gz > bt-panel-${OS}.tar.gz.md5
+
+          echo "=== Build complete ==="
+          ls -lh bt-panel-${OS}.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bt-panel-${{ matrix.os }}
+          path: |
+            bt-panel-${{ matrix.os }}.tar.gz
+            bt-panel-${{ matrix.os }}.tar.gz.md5
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release
+        run: |
+          mkdir -p release
+          find artifacts -type f -name "*.tar.gz" -exec cp {} release/ \;
+          find artifacts -type f -name "*.md5" -exec cp {} release/ \;
+          cp install.sh release/
+          ls -la release/
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

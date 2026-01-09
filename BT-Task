@@ -1,0 +1,15 @@
+#!/www/server/panel/pyenv/bin/python
+# coding: utf-8
+# -------------------------------------------------------------------
+# BT Panel
+# -------------------------------------------------------------------
+# Copyright (c) 2026-present MissChina. All rights reserved.
+# -------------------------------------------------------------------
+# Author: MissChina
+# License: Proprietary
+# -------------------------------------------------------------------
+
+import os,sys
+os.chdir('/www/server/panel')
+import task
+task.main()

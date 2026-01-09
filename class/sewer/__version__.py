@@ -1,0 +1,7 @@
+__title__ = "sewer"
+__description__ = "Sewer is a programmatic Lets Encrypt(ACME) client"
+__url__ = "https://github.com/MissChina/BT"
+__version__ = "0.7.2"
+__author__ = "MissChina"
+__author_email__ = "391475293@qq.com"
+__license__ = "Proprietary"

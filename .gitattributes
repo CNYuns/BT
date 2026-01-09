@@ -1,0 +1,25 @@
+# Shell scripts always use LF
+*.sh text eol=lf
+
+# Python files
+*.py text eol=lf
+
+# Other text files
+*.txt text
+*.md text
+*.json text
+*.yml text
+*.yaml text
+*.xml text
+*.html text
+*.css text
+*.js text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.tar.gz binary
