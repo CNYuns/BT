@@ -374,41 +374,8 @@
         }
     });
 
-    // 修复: 直接调用安装API，而不是使用 bt.soft.install (只发送postMessage无人监听)
     $('.daily-product-buy').on('click', '.installWaf', function(){
-      var loadT = layer.msg('正在获取插件信息...', {icon: 16, time: 0, shade: 0.3});
-      bt_tools.send({url:'/plugin?action=get_soft_find', data:{sName: 'btwaf'}}, function(rdata){
-        layer.close(loadT);
-        if(rdata && rdata.name){
-          var versionInfo = rdata.versions && rdata.versions.length > 0 ? rdata.versions[0] : null;
-          var m_version = versionInfo ? versionInfo.m_version : '';
-          var min_version = versionInfo ? versionInfo.version : '0';
-          layer.confirm('您真的要安装 Nginx防火墙' + (m_version ? '-' + m_version : '') + ' 吗?', {
-            title: '安装插件',
-            btn: ['确定', '取消'],
-            icon: 3
-          }, function(index){
-            layer.close(index);
-            var installLoad = layer.msg('正在添加到安装队列...', {icon: 16, time: 0, shade: 0.3});
-            bt_tools.send({url:'/plugin?action=install_plugin', data:{
-              sName: 'btwaf',
-              version: m_version,
-              min_version: min_version,
-              type: 0
-            }}, function(res){
-              layer.close(installLoad);
-              if(res && res.status){
-                layer.msg('已添加到安装队列，请在任务列表中查看进度', {icon: 1, time: 3000});
-                setTimeout(function(){ location.reload(); }, 3000);
-              }else{
-                layer.msg(res && res.msg ? res.msg : '安装失败', {icon: 2});
-              }
-            });
-          });
-        }else{
-          layer.msg('获取插件信息失败', {icon: 2});
-        }
-      });
+      bt.soft.install('btwaf')
     });
 
     $('.payPlugin').on('click',function(){

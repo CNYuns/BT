@@ -2330,8 +2330,9 @@ def panel_other(name=None, fun=None, stype=None):
             plugin_list = PluginLoader.get_plugin_list(0)
             for p in plugin_list['list']:
                 if p['name'] in ['btwaf']:
-                    # 已修改: 跳过到期检查，始终允许访问
-                    pass
+                    # 已修改: 始终标记为未过期，允许安装
+                    pdata['endtime'] = 253402214400
+                    break
             return render_template('error3.html', data=pdata)
         return abort(404)
 

@@ -31,7 +31,7 @@ git commit -m "v版本号 - 简短描述"
 
 ```python
 # class/common.py:33
-g.version = '11.3.39'
+g.version = '11.3.40'
 ```
 
 ### 2.2 获取版本号方法
@@ -71,7 +71,7 @@ g.version = '11.3.39'
 
 ---
 
-# 第二部分：当前版本状态 (v11.3.39)
+# 第二部分：当前版本状态 (v11.3.40)
 
 ## 一、已完成的修改
 
@@ -102,7 +102,7 @@ g.version = '11.3.39'
 
 | 文件 | 修改 |
 |------|------|
-| `class/common.py:33` | 版本号定义: `g.version = '11.3.39'` |
+| `class/common.py:33` | 版本号定义: `g.version = '11.3.40'` |
 | `class/ajax.py:918` | 使用 `public.version()` 替代硬编码 |
 
 ### 1.3 WAF安装页面修复
@@ -217,7 +217,7 @@ PYENV_URL="https://github.com/MissChina/file/releases/download/1.0/pyenv-ubuntu2
 ### 6.2 统一版本号管理
 
 **修改**:
-- `class/common.py:33` - 定义 `g.version = '11.3.39'`
+- `class/common.py:33` - 定义 `g.version = '11.3.40'`
 - `class/ajax.py:918` - 使用 `public.version()` 替代硬编码
 
 ---
