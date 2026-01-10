@@ -215,7 +215,7 @@
                   </div>
                    <div class="thumbnail-title-button-new daily-product-buy" style="margin: 16px 102px;">
                       <a class="btn btn-default mr10" style="color:#666" title="产品预览" href="https://www.bt.cn/new/product_nginx_firewall.html" target="_blank">产品预览</a>
-                      <a title="购买专业/企业版" href="javascript:;" class="btn btn-success va0 ml15 payPlugin">立即购买</a>
+                      <a title="立即安装" href="javascript:;" class="btn btn-success va0 ml15 installWaf">立即安装</a>
                   </div>
               </div>
               <div class="thumbnail-introduce-hr"></div>
@@ -299,7 +299,7 @@
                   </div>
                    <div class="thumbnail-title-button-new daily-product-buy" style="margin: 16px 102px;">
                       <a class="btn btn-default mr10" style="color:#666" title="产品预览" href="https://www.bt.cn/new/product_nginx_firewall.html" target="_blank">产品预览</a>
-                      <a title="购买专业/企业版" href="javascript:;" class="btn btn-success va0 ml15 payPlugin">立即购买</a>
+                      <a title="立即安装" href="javascript:;" class="btn btn-success va0 ml15 installWaf">立即安装</a>
                   </div>
               </div>
               <div class="thumbnail-introduce-hr"></div>
@@ -367,13 +367,6 @@
 <script src="{{g.cdn_url}}/layer/layer.js"></script>
 <script src="{{g.cdn_url}}/js/utils.min.js"></script>
   <script type="text/javascript">
-		bt_tools.send({url:'/plugin?action=get_soft_find',data:{sName: 'btwaf'}}, function (res) {
-        if (res.endtime >= 0) {
-            $('.payPlugin').after('<a href="javascript:;" class="btn btn-success va0 ml15 installWaf">立即安装</a>');
-            $('.payPlugin').remove();
-        }
-    });
-
     // 直接调用安装API
     $('.daily-product-buy').on('click', '.installWaf', function(){
       layer.confirm('您真的要安装 Nginx防火墙 吗?', {icon:3, title:'安装插件'}, function(index){
@@ -397,11 +390,6 @@
       });
     });
 
-    $('.payPlugin').on('click',function(){
-      bt.soft.get_soft_find('btwaf',function(rdata){
-        window.parent.pay({ disablePro: true, sourceId: 25, plugin: true, pluginInfo:rdata})
-      });
-    })
     $('.thumbnail-tab li').click(function () {
       var index = $(this).index();
       $(this).addClass('on').siblings('.on').removeClass('on');

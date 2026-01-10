@@ -2410,8 +2410,8 @@ def panel_other(name=None, fun=None, stype=None):
             r_type = type(data)
             if r_type == dict:
                 if name == 'btwaf' and 'msg' in data:
-                    return render_template('error3.html',
-                                           data={"error_msg": data['msg']})
+                    # 已修改: 始终返回安装页面（不传error_msg），避免显示"购买专业版"
+                    return render_template('error3.html', data={})
                 return public.returnJson(
                     False,
                     public.getMsg('PUBLIC_ERR_RETURN').format(
@@ -3566,8 +3566,8 @@ def panel_mod(name=None, sub_name=None, fun=None, stype=None):
             r_type = type(data)
             if r_type == dict:
                 if name == 'btwaf' and 'msg' in data:
-                    return render_template('error3.html',
-                                           data={"error_msg": data['msg']})
+                    # 已修改: 始终返回安装页面（不传error_msg），避免显示"购买专业版"
+                    return render_template('error3.html', data={})
                 return public.returnJson(
                     False,
                     public.getMsg('PUBLIC_ERR_RETURN').format(
