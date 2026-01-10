@@ -1112,7 +1112,14 @@ class panelPlugin:
                 update = pluginInfo['versions'][0]['version_msg']
             return self.update_zip(None, toFile, update)
         else:
-            if hasattr(get, 'min_version'):
+            # 如果没有传递版本号，从pluginInfo中获取第一个可用版本
+            if not hasattr(get, 'version') or not get.version:
+                if pluginInfo.get('versions') and len(pluginInfo['versions']) > 0:
+                    get.version = pluginInfo['versions'][0].get('m_version', '')
+                    if pluginInfo['versions'][0].get('version'):
+                        get.min_version = pluginInfo['versions'][0].get('version', '')
+
+            if hasattr(get, 'min_version') and get.min_version:
                 get.version += '.' + get.min_version
 
             return self.__install_plugin(pluginInfo['name'], get.version)
