@@ -2409,9 +2409,12 @@ def panel_other(name=None, fun=None, stype=None):
         else:  # 直接响应插件返回值,可以是任意flask支持的响应类型
             r_type = type(data)
             if r_type == dict:
-                if name == 'btwaf' and 'msg' in data:
-                    # 已修改: 始终返回安装页面（不传error_msg），避免显示"购买专业版"
-                    return render_template('error3.html', data={})
+                # 已修改: 只有在授权错误时才返回安装页面
+                if name == 'btwaf' and data.get('status') == False and 'msg' in data:
+                    msg = str(data.get('msg', ''))
+                    auth_errors = ['未授权', '未购买', '授权列表', '无法获取', '已到期', '过期']
+                    if any(err in msg for err in auth_errors):
+                        return render_template('error3.html', data={})
                 return public.returnJson(
                     False,
                     public.getMsg('PUBLIC_ERR_RETURN').format(
@@ -3565,9 +3568,12 @@ def panel_mod(name=None, sub_name=None, fun=None, stype=None):
         else:  # 直接响应插件返回值,可以是任意flask支持的响应类型
             r_type = type(data)
             if r_type == dict:
-                if name == 'btwaf' and 'msg' in data:
-                    # 已修改: 始终返回安装页面（不传error_msg），避免显示"购买专业版"
-                    return render_template('error3.html', data={})
+                # 已修改: 只有在授权错误时才返回安装页面
+                if name == 'btwaf' and data.get('status') == False and 'msg' in data:
+                    msg = str(data.get('msg', ''))
+                    auth_errors = ['未授权', '未购买', '授权列表', '无法获取', '已到期', '过期']
+                    if any(err in msg for err in auth_errors):
+                        return render_template('error3.html', data={})
                 return public.returnJson(
                     False,
                     public.getMsg('PUBLIC_ERR_RETURN').format(
