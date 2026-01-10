@@ -1100,11 +1100,29 @@ class panelPlugin:
         # 优先检查自定义URL（绕过官方下载逻辑）
         custom_url = self.__get_custom_plugin_url(plugin_name)
         if custom_url:
-            # 使用自定义URL，走__install_plugin流程
-            version = getattr(get, 'version', '') or pluginInfo['versions'][0].get('m_version', '1')
-            min_version = getattr(get, 'min_version', '') or pluginInfo['versions'][0].get('version', '0')
-            full_version = '{}.{}'.format(version, min_version)
-            return self.__install_plugin(plugin_name, full_version)
+            # 直接下载和解压，不走__install_plugin（避免重新获取插件信息）
+            import requests
+            tmp_path = '/www/server/panel/temp'
+            if not os.path.exists(tmp_path):
+                os.makedirs(tmp_path, mode=0o755)
+
+            filename = '{}/{}.zip'.format(tmp_path, plugin_name)
+
+            try:
+                # 下载插件
+                response = requests.get(custom_url, timeout=(60, 600), stream=True, verify=False)
+                if response.status_code != 200:
+                    return public.returnMsg(False, '下载失败，HTTP状态码: {}'.format(response.status_code))
+
+                with open(filename, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+
+                # 解压插件
+                return self.__unpackup_plugin(filename)
+            except Exception as e:
+                return public.returnMsg(False, '安装失败: {}'.format(str(e)))
 
         # 非自定义插件，使用原有逻辑
         if 'download' in pluginInfo['versions'][0]:
