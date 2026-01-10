@@ -654,11 +654,8 @@ var bt_waf = {
 			var iNode = $(this).find('i'),
 				_status_list = iNode.hasClass('active');
 			bt.soft.get_soft_find('btmalibrary', function (rdata) {
-				// 未购买
-				if (rdata.endtime < 0) {
-					window.parent.pay({ disablePro: true, sourceId: 115, plugin: true, pluginInfo:rdata})
-					return false;
-				}
+				// 已修改: 强制设置为已授权 - MissChina
+				rdata.endtime = 253402214400;
 				// 开启服务
 				that.ajaxTask('set_obj_open', { obj: 'btmalibrary' }, function (res) {
 					layer.msg(res.msg, { icon: res.status ? 1 : 2 });

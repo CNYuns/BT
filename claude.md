@@ -2,7 +2,7 @@
 
 ## 作者: MissChina
 ## 邮箱: 391475293@qq.com
-## 更新日期: 2026-01-09
+## 更新日期: 2026-01-10
 
 ---
 
@@ -97,6 +97,7 @@ g.version = '11.3.41'
 | 16 | `class/ajax.py` | `UpdatePanel()` | 使用 public.version() |
 | 17 | `class/panelModel/publicModel.py:162` | `get_pd()` | 返回永久授权 |
 | 18 | `mod/base/public_aap/common.py:4295` | `get_pd()` | 返回永久授权 |
+| 19 | `plugin/btwaf/static/js/btwaf.js:657` | 恶意情报库检查 | 注释授权检查代码 |
 
 ### 1.2 版本号统一管理
 
@@ -217,8 +218,21 @@ PYENV_URL="https://github.com/MissChina/file/releases/download/1.0/pyenv-ubuntu2
 ### 6.2 统一版本号管理
 
 **修改**:
-- `class/common.py:33` - 定义 `g.version = '11.3.41'`
+- `class/common.py:33` - 定义 `g.version = '11.3.50'`
 - `class/ajax.py:918` - 使用 `public.version()` 替代硬编码
+
+### 6.3 2026-01-10 更新 - btwaf插件前端授权绕过
+
+**问题**: btwaf插件安装后，点击"恶意情报库"功能弹出购买窗口
+
+**原因**: `plugin/btwaf/static/js/btwaf.js:657-661` 检查 `rdata.endtime < 0`
+
+**解决**: 在检查前强制设置 endtime 为永久授权
+
+```javascript
+// 已修改: 强制设置为已授权 - MissChina
+rdata.endtime = 253402214400;
+```
 
 ---
 
@@ -259,5 +273,5 @@ public.version()
 ---
 
 **文档创建时间**：2026-01-02
-**最后更新时间**：2026-01-09
+**最后更新时间**：2026-01-10
 **维护者**：MissChina <391475293@qq.com>
