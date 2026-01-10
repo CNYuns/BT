@@ -1100,6 +1100,10 @@ class panelPlugin:
         # 优先检查自定义URL（绕过官方下载逻辑）
         custom_url = self.__get_custom_plugin_url(plugin_name)
         if custom_url:
+            # 设置插件名称和安装选项（__unpackup_plugin需要使用）
+            self.__plugin_name = plugin_name
+            self.__install_opt = 'i'
+
             # 直接下载和解压，不走__install_plugin（避免重新获取插件信息）
             import requests
             tmp_path = '/www/server/panel/temp'
@@ -1120,7 +1124,34 @@ class panelPlugin:
                             f.write(chunk)
 
                 # 解压插件
-                return self.__unpackup_plugin(filename)
+                plugin_data = self.__unpackup_plugin(filename)
+                if isinstance(plugin_data, dict) and 'status' in plugin_data and not plugin_data['status']:
+                    return plugin_data
+
+                # 执行安装脚本（参考 input_zip 函数）
+                if 'tmp_path' in plugin_data:
+                    src_path = plugin_data['tmp_path']
+                    plugin_install_path = '/www/server/panel/plugin/' + plugin_name
+                    if not os.path.exists(plugin_install_path):
+                        os.makedirs(plugin_install_path)
+                    public.ExecShell("\cp -a -r " + src_path + '/* ' + plugin_install_path + '/')
+                    public.ExecShell('chmod -R 600 ' + plugin_install_path)
+                    self.set_pyenv(plugin_install_path + '/install.sh')
+                    public.ExecShell('cd ' + plugin_install_path + ' && bash install.sh install &> /tmp/panelShell.pl')
+                    public.ExecShell("rm -rf /www/server/panel/temp/*")
+
+                    # 复制图标
+                    for ico_file in ['svg', 'png']:
+                        icon_sfile = plugin_install_path + '/icon.' + ico_file
+                        icon_dfile = '/www/server/panel/BTPanel/static/img/soft_ico/ico-{}.{}'.format(plugin_name, ico_file)
+                        if os.path.exists(icon_sfile):
+                            import shutil
+                            shutil.copyfile(icon_sfile, icon_dfile)
+
+                    public.WriteLog('软件管理', '安装插件[{}]'.format(plugin_name))
+                    return public.returnMsg(True, '安装成功!')
+
+                return public.returnMsg(False, '安装失败: 无法获取临时路径')
             except Exception as e:
                 return public.returnMsg(False, '安装失败: {}'.format(str(e)))
 

