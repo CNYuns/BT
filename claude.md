@@ -71,7 +71,7 @@ g.version = '11.3.41'
 
 ---
 
-# 第二部分：当前版本状态 (v11.3.41)
+# 第二部分：当前版本状态 (v11.3.52)
 
 ## 一、已完成的修改
 
@@ -92,7 +92,7 @@ g.version = '11.3.41'
 | 11 | `script/cron_file.py:20` | `__check_auth()` | return True |
 | 12 | `class/plugin_tool.py:98` | `_call_plugin_func()` | 跳过未购买检查 |
 | 13 | `BTPanel/__init__.py` | `get_pd()` | 返回永久授权 |
-| 14 | `BTPanel/__init__.py` | `panel_other()` | 拦截授权错误 |
+| 14 | `BTPanel/__init__.py` | `panel_other()` | 授权错误时渲染插件模板 |
 | 15 | `class/ajax.py` | `get_pd()` | 返回永久授权 |
 | 16 | `class/ajax.py` | `UpdatePanel()` | 使用 public.version() |
 | 17 | `class/panelModel/publicModel.py:162` | `get_pd()` | 返回永久授权 |
@@ -103,7 +103,7 @@ g.version = '11.3.41'
 
 | 文件 | 修改 |
 |------|------|
-| `class/common.py:33` | 版本号定义: `g.version = '11.3.41'` |
+| `class/common.py:33` | 版本号定义: `g.version = '11.3.52'` |
 | `class/ajax.py:918` | 使用 `public.version()` 替代硬编码 |
 
 ### 1.3 WAF安装页面修复
@@ -233,6 +233,31 @@ PYENV_URL="https://github.com/MissChina/file/releases/download/1.0/pyenv-ubuntu2
 // 已修改: 强制设置为已授权 - MissChina
 rdata.endtime = 253402214400;
 ```
+
+### 6.4 2026-01-10 更新 - btwaf安装后显示两个界面问题
+
+**问题**: btwaf插件安装成功后，刷新页面仍显示安装页面而非WAF界面
+
+**原因**: `panel_other()` 函数在捕获授权错误时返回 `error3.html`（安装页），即使插件已安装
+
+**解决**: 修改 `BTPanel/__init__.py` 中4处返回 error3.html 的位置，改为检测插件模板是否存在，存在则直接渲染插件模板
+
+```python
+# 已修改: 插件已安装时直接渲染插件模板
+if name == 'btwaf' and fun == 'index':
+    t_path = p_path + '/templates/index.html'
+    if os.path.exists(t_path):
+        g.btwaf_version = '1.0'
+        t_body = public.readFile(t_path)
+        return render_template_string(t_body, data={'js_random': get_js_random()})
+    return render_template('error3.html', data={})
+```
+
+**修改位置**:
+1. `BTPanel/__init__.py:2369-2377` - panel_other() 中 is_auth_error 判断
+2. `BTPanel/__init__.py:2387-2394` - panel_other() 异常处理
+3. `BTPanel/__init__.py:2424-2434` - panel_other() dict类型返回值处理
+4. `BTPanel/__init__.py:3588-3598` - panel_mod() dict类型返回值处理
 
 ---
 

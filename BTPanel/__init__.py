@@ -2363,11 +2363,17 @@ def panel_other(name=None, fun=None, stype=None):
                     'status'] == False and 'msg' in data:
                     if isinstance(data['msg'], str):
                         msg = data['msg']
-                        # 已修改: 拦截授权相关错误，返回安装页面而不是抛出异常
+                        # 已修改: 拦截授权相关错误
                         auth_errors = ['未授权', '未购买', '授权列表', '无法获取', '已到期', '过期', 'unauthorized', 'license', 'expired']
                         is_auth_error = any(err in msg.lower() if err.islower() else err in msg for err in auth_errors)
                         if is_auth_error:
-                            if name == 'btwaf':
+                            if name == 'btwaf' and fun == 'index':
+                                # 已修改: 插件已安装时直接渲染插件模板，而非返回安装页
+                                t_path = p_path + '/templates/index.html'
+                                if os.path.exists(t_path):
+                                    g.btwaf_version = '1.0'
+                                    t_body = public.readFile(t_path)
+                                    return render_template_string(t_body, data={'js_random': get_js_random()})
                                 return render_template('error3.html', data={})
                             # 其他插件返回空成功
                             data = {'status': True, 'msg': ''}
@@ -2379,6 +2385,12 @@ def panel_other(name=None, fun=None, stype=None):
             # 已修改: 扩展授权错误检测范围
             auth_keywords = ['未购买', '未授权', '授权列表', '无法获取', '已到期', '过期']
             if name == 'btwaf' and fun == 'index' and any(kw in ex_str for kw in auth_keywords):
+                # 已修改: 插件已安装时直接渲染插件模板
+                t_path = p_path + '/templates/index.html'
+                if os.path.exists(t_path):
+                    g.btwaf_version = '1.0'
+                    t_body = public.readFile(t_path)
+                    return render_template_string(t_body, data={'js_random': get_js_random()})
                 return render_template('error3.html', data={})
             return public.get_error_object(None, plugin_name=name)
 
@@ -2409,11 +2421,16 @@ def panel_other(name=None, fun=None, stype=None):
         else:  # 直接响应插件返回值,可以是任意flask支持的响应类型
             r_type = type(data)
             if r_type == dict:
-                # 已修改: 只有在授权错误时才返回安装页面
+                # 已修改: 插件已安装时直接渲染插件模板
                 if name == 'btwaf' and data.get('status') == False and 'msg' in data:
                     msg = str(data.get('msg', ''))
                     auth_errors = ['未授权', '未购买', '授权列表', '无法获取', '已到期', '过期']
                     if any(err in msg for err in auth_errors):
+                        t_path = p_path + '/templates/index.html'
+                        if os.path.exists(t_path):
+                            g.btwaf_version = '1.0'
+                            t_body = public.readFile(t_path)
+                            return render_template_string(t_body, data={'js_random': get_js_random()})
                         return render_template('error3.html', data={})
                 return public.returnJson(
                     False,
@@ -3568,11 +3585,16 @@ def panel_mod(name=None, sub_name=None, fun=None, stype=None):
         else:  # 直接响应插件返回值,可以是任意flask支持的响应类型
             r_type = type(data)
             if r_type == dict:
-                # 已修改: 只有在授权错误时才返回安装页面
+                # 已修改: 插件已安装时直接渲染插件模板
                 if name == 'btwaf' and data.get('status') == False and 'msg' in data:
                     msg = str(data.get('msg', ''))
                     auth_errors = ['未授权', '未购买', '授权列表', '无法获取', '已到期', '过期']
                     if any(err in msg for err in auth_errors):
+                        t_path = p_path + '/templates/index.html'
+                        if os.path.exists(t_path):
+                            g.btwaf_version = '1.0'
+                            t_body = public.readFile(t_path)
+                            return render_template_string(t_body, data={'js_random': get_js_random()})
                         return render_template('error3.html', data={})
                 return public.returnJson(
                     False,
