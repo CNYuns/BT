@@ -1095,11 +1095,23 @@ class panelPlugin:
 
     # 同步安装
     def install_sync(self, pluginInfo, get):
+        plugin_name = pluginInfo['name']
+
+        # 优先检查自定义URL（绕过官方下载逻辑）
+        custom_url = self.__get_custom_plugin_url(plugin_name)
+        if custom_url:
+            # 使用自定义URL，走__install_plugin流程
+            version = getattr(get, 'version', '') or pluginInfo['versions'][0].get('m_version', '1')
+            min_version = getattr(get, 'min_version', '') or pluginInfo['versions'][0].get('version', '0')
+            full_version = '{}.{}'.format(version, min_version)
+            return self.__install_plugin(plugin_name, full_version)
+
+        # 非自定义插件，使用原有逻辑
         if 'download' in pluginInfo['versions'][0]:
             tmp_path = '/www/server/panel/temp'
             if not os.path.exists(tmp_path): os.makedirs(tmp_path, mode=384)
             public.ExecShell("rm -rf " + tmp_path + '/*')
-            toFile = tmp_path + '/' + pluginInfo['name'] + '.zip'
+            toFile = tmp_path + '/' + plugin_name + '.zip'
             public.downloadFile('https://www.bt.cn/api/Pluginother/get_file?fname=' +
                                 pluginInfo['versions'][0]['download'], toFile)
             if public.FileMd5(toFile) != pluginInfo['versions'][0]['md5']:
@@ -1112,11 +1124,10 @@ class panelPlugin:
                 update = pluginInfo['versions'][0]['version_msg']
             return self.update_zip(None, toFile, update)
         else:
-            # 获取版本号：优先使用传递的版本，否则从pluginInfo获取
             version = getattr(get, 'version', '') or pluginInfo['versions'][0].get('m_version', '1')
             min_version = getattr(get, 'min_version', '') or pluginInfo['versions'][0].get('version', '0')
             full_version = '{}.{}'.format(version, min_version)
-            return self.__install_plugin(pluginInfo['name'], full_version)
+            return self.__install_plugin(plugin_name, full_version)
 
     # 修复插件
     def repair_plugin(self, get):
