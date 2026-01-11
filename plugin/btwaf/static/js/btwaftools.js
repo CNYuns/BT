@@ -1203,6 +1203,22 @@ var bt_waf_tools = {
                     url: config.url,
                     data: config.param
                 }, function (res) {
+                    // 安全检查：授权拦截返回空数据时提供默认结构 - MissChina
+                    if (!res) res = {};
+                    if (res.status === true && (!res.msg || res.msg === '')) {
+                        res = {status: true, msg: {data: [], list: [], total: 0, count: 0, page: 0}, data: [], page: 0};
+                    }
+                    if (!res.data) res.data = [];
+                    if (res.msg && typeof res.msg !== 'object') {
+                        res.msg = {data: [], list: [], total: 0, count: 0, page: 0};
+                    }
+                    if (res.msg && typeof res.msg === 'object') {
+                        if (!res.msg.list) res.msg.list = [];
+                        if (!res.msg.data) res.msg.data = [];
+                        if (!res.msg.total) res.msg.total = 0;
+                        if (!res.msg.count) res.msg.count = 0;
+                        if (!res.msg.page) res.msg.page = 0;
+                    }
                     if (typeof config.dataFilter != "undefined") {
                         var data = config.dataFilter(res,that);
                         if (typeof data.tootls != "undefined") data.tootls = parseInt(data.tootls);

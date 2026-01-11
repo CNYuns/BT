@@ -85,6 +85,7 @@ cj/
 nul
 claude.md
 
-# WAF Plugin (不上传到GitHub，单独管理)
-plugin/btwaf/
+# WAF Plugin 相关文件 (插件源码已包含，但排除zip和临时文件)
 plugin/btwaf.zip
+plugin/btwaf/__pycache__/
+plugin/btwaf/*.pyc

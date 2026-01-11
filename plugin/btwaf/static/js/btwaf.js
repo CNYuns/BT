@@ -13899,6 +13899,8 @@ var bt_waf = {
 			default: '正在获取网站信息', //数据为空时的默认提示
 			dataFilter: function (res) {
 				if (loadT) loadT.close();
+				// 安全检查 - MissChina
+				if (!res.data) res.data = [];
 				if (res.data.length == 0) {
 					setTimeout(function () {
 						$('#site_table tbody tr:eq(0) td:eq(0)').html('当前数据为空');
