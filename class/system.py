@@ -1408,9 +1408,10 @@ class system:
             data['uid'] = ajax_obj.get_uid()
             # msg = public.getMsg('PANEL_UPDATE_MSG');
             data['o'] = public.get_oem_name()
-            sUrl = public.GetConfigValue('home') + '/api/panel/get_panel_version_v3'
+            # 使用GitHub获取版本信息 - MissChina
+            sUrl = 'https://raw.githubusercontent.com/CNYuns/BT/main/data/version.json'
             try:
-                updateInfo = json.loads(public.httpPost(sUrl, data))
+                updateInfo = json.loads(public.HttpGet(sUrl))
             except:
                 return public.returnMsg(False, "CONNECT_ERR")
 
@@ -1474,16 +1475,19 @@ class system:
             except:
                 data['upgrade'] = 1
 
-            down_url = 'http://download.bt.cn/install/update/LinuxPanel-{}.pl'.format(data['local']['version'])
-            if os.path.exists("/tmp/LinuxPanel-{}.pl".format(data['local']['version'])):
-                os.remove("/tmp/LinuxPanel-{}.pl".format(data['local']['version']))
-            public.downloadFile(down_url, "/tmp/LinuxPanel-{}.pl".format(data['local']['version']))
+            # 跳过宝塔服务器的pl文件检查，已从GitHub获取版本信息 - MissChina
+            # down_url = 'http://download.bt.cn/install/update/LinuxPanel-{}.pl'.format(data['local']['version'])
+            # if os.path.exists("/tmp/LinuxPanel-{}.pl".format(data['local']['version'])):
+            #     os.remove("/tmp/LinuxPanel-{}.pl".format(data['local']['version']))
+            # public.downloadFile(down_url, "/tmp/LinuxPanel-{}.pl".format(data['local']['version']))
             try:
-                pl_info = json.loads(public.readFile("/tmp/LinuxPanel-{}.pl".format(data['local']['version'])))
-                if int(pl_info['update_time']) > int(data['local']['update_time']):
-                    data['cloud']['hash'] = pl_info['hash']
-                    data['cloud']['update_time'] = pl_info['update_time']
-                    data['cloud']['version'] = data['local']['version']
+                # 使用GitHub版本信息中的update_time
+                if 'update_time' in data['cloud'].get('OfficialVersion', {}):
+                    cloud_update_time = int(data['cloud']['OfficialVersion']['update_time'])
+                    if cloud_update_time > int(data['local']['update_time']):
+                        data['cloud']['hash'] = ''
+                        data['cloud']['update_time'] = cloud_update_time
+                        data['cloud']['version'] = data['cloud']['OfficialVersion']['version']
             except:
                 data['upgrade'] = 0
 
@@ -1542,22 +1546,24 @@ class system:
 
             data['local']['update_time'] = int(update_time)
             try:
-                down_url = 'http://download.bt.cn/install/update/LinuxPanel-{}.pl'.format(data['local']['version'])
-                if os.path.exists("/tmp/LinuxPanel-{}.pl".format(data['local']['version'])):
-                    os.remove("/tmp/LinuxPanel-{}.pl".format(data['local']['version']))
-                public.downloadFile(down_url, "/tmp/LinuxPanel-{}.pl".format(data['local']['version']))
-                try:
-                    pl_info = json.loads(public.readFile("/tmp/LinuxPanel-{}.pl".format(data['local']['version'])))
-                    if int(pl_info['update_time']) > int(data['local']['update_time']):
+                # 使用GitHub获取版本信息 - MissChina
+                import json
+                sUrl = 'https://raw.githubusercontent.com/CNYuns/BT/main/data/version.json'
+                version_info = json.loads(public.HttpGet(sUrl))
+                if version_info and 'OfficialVersion' in version_info:
+                    cloud_update_time = int(version_info['OfficialVersion'].get('update_time', 0))
+                    if cloud_update_time > int(data['local']['update_time']):
                         data['upgrade'] = 1
                         data['cloud'] = {}
-                        data['cloud']['hash'] = pl_info['hash']
-                        data['cloud']['update_time'] = pl_info['update_time']
-                        data['cloud']['version'] = data['local']['version']
-                except:
+                        data['cloud']['hash'] = ''
+                        data['cloud']['update_time'] = cloud_update_time
+                        data['cloud']['version'] = version_info['OfficialVersion']['version']
+                    else:
+                        data['upgrade'] = 0
+                else:
                     data['upgrade'] = 0
             except:
-                data['upgrade'] = 1
+                data['upgrade'] = 0
 
             return data
         else:
@@ -1565,8 +1571,12 @@ class system:
             if os.path.exists(update_time_file):
                 os.remove(update_time_file)
             try:
-                pl_info = json.loads(public.readFile("/tmp/LinuxPanel-{}.pl".format(public.version())))
-                public.writeFile(update_time_file, str(pl_info['update_time']))
+                # 使用GitHub获取版本信息更新update_time - MissChina
+                import json
+                sUrl = 'https://raw.githubusercontent.com/CNYuns/BT/main/data/version.json'
+                version_info = json.loads(public.HttpGet(sUrl))
+                if version_info and 'OfficialVersion' in version_info:
+                    public.writeFile(update_time_file, str(version_info['OfficialVersion'].get('update_time', int(time.time()))))
             except:
                 pass
 

@@ -1,0 +1,20 @@
+{
+    "OfficialVersion": {
+        "version": "11.3.57",
+        "update_msg": "v11.3.57 - 检查更新改用GitHub源",
+        "plugin_restrictions": {},
+        "update_time": 1736582400
+    },
+    "OfficialVersionLatest": {
+        "version": "11.3.57",
+        "update_msg": "v11.3.57 - 检查更新改用GitHub源",
+        "plugin_restrictions": {},
+        "update_time": 1736582400
+    },
+    "version": "11.3.57",
+    "is_beta": 0,
+    "force": false,
+    "msg": "",
+    "beta": {"version": "11.3.57"},
+    "local_beta": 0
+}
