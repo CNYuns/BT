@@ -3520,6 +3520,15 @@ var bt_waf = {
 			params.new_overview = 1;
 		}
 		bt_tools.send({ url: '/btwaf/new_overview.json', data: params }, function (res) {
+			// 安全检查：确保返回数据结构完整 - MissChina
+			if (!res || res.msg === '') {
+				res = {attack_details: [], autoEvent: [], map: [], traffic_filter: [], type: [], qps: 0, traffic: 0, proxy_time: 0, time: ''};
+			}
+			if (!res.attack_details) res.attack_details = [];
+			if (!res.autoEvent) res.autoEvent = [];
+			if (!res.map) res.map = [];
+			if (!res.traffic_filter) res.traffic_filter = [];
+			if (!res.type) res.type = [];
 			if($('.traffic-filter-title .searcTime .gt.on').data('day') !== 0){
 				// 非今日视图,只刷新qps和实时回源,隐藏刷新时间图标
 				that.qpsData.push({
@@ -3588,6 +3597,16 @@ var bt_waf = {
 		bt_tools.send({ url: '/btwaf/overview.json', data: param }, function (res) {
 			if (loadT) loadT.close();
 			if (callback) callback();
+			// 安全检查：确保返回数据结构完整 - MissChina
+			if (!res || res.msg === '') {
+				res = {attack_details: [], attack_report_log: [], traffic_filter: [], type: [], map: [], autoEvent: [], qps: 0, traffic: 0, proxy_time: 0, time: '', '3D': false};
+			}
+			if (!res.attack_details) res.attack_details = [];
+			if (!res.attack_report_log) res.attack_report_log = [];
+			if (!res.traffic_filter) res.traffic_filter = [];
+			if (!res.type) res.type = [];
+			if (!res.map) res.map = [];
+			if (!res.autoEvent) res.autoEvent = [];
 			that.render_count(res); // 渲染次数
 			that.render_attack_log(res); // 渲染最新拦截事件
 			that.render_TopList(res); // 渲染top事件
@@ -4088,6 +4107,10 @@ var bt_waf = {
 		}
 
 		bt_tools.send({ url: '/btwaf/get_index_map.json', data: {} }, function (res) {
+			// 安全检查 - MissChina
+			if (!res || res.msg === '' || !res.attack_ip) {
+				res = {attack_ip: [], load_ip: {longitude: 0, latitude: 0}};
+			}
 			var mapList = [];
 			var data = res.attack_ip;
 			data.forEach(function (_item, _index) {
@@ -4366,6 +4389,8 @@ var bt_waf = {
 	render_attack_log(res) {
 		var that = this;
 		$('#attack_report_log').empty()
+		// 安全检查 - MissChina
+		if (!res || !res.attack_report_log) res = {attack_report_log: []};
 		bt_tools.table({
 			el:'#attack_report_log',
 			default:'暂无数据',
@@ -6235,6 +6260,8 @@ var bt_waf = {
 		});
 		bt_tools.send({ url: '/plugin?action=a&name=btwaf&s=get_report', data: param }, function (res) {
 			if (loadT) loadT.close();
+			// 安全检查 - MissChina
+			if (!res) res = {status: false, msg: []};
 			// })
 			// that.ajaxTask('get_report', param, function (res) {
 			// console.log(888888888888);
