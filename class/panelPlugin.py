@@ -1114,9 +1114,23 @@ class panelPlugin:
 
             try:
                 # 下载插件
+                _waf_debug_log('custom_url_download', '开始从自定义URL下载', {
+                    'plugin': plugin_name,
+                    'url': custom_url
+                })
+
                 response = requests.get(custom_url, timeout=(60, 600), stream=True, verify=False)
+
+                _waf_debug_log('custom_url_response', '下载响应', {
+                    'status_code': response.status_code,
+                    'content_length': response.headers.get('Content-Length'),
+                    'content_type': response.headers.get('Content-Type')
+                })
+
                 if response.status_code != 200:
-                    return public.returnMsg(False, '下载失败，HTTP状态码: {}'.format(response.status_code))
+                    error_msg = '从自定义URL下载失败，HTTP状态码: {}，请检查GitHub release是否存在btwaf.zip文件'.format(response.status_code)
+                    _waf_debug_log('custom_url_error', error_msg, {'url': custom_url})
+                    return public.returnMsg(False, error_msg)
 
                 with open(filename, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=8192):
@@ -1137,7 +1151,19 @@ class panelPlugin:
                     public.ExecShell("\cp -a -r " + src_path + '/* ' + plugin_install_path + '/')
                     public.ExecShell('chmod -R 600 ' + plugin_install_path)
                     self.set_pyenv(plugin_install_path + '/install.sh')
-                    public.ExecShell('cd ' + plugin_install_path + ' && bash install.sh install &> /tmp/panelShell.pl')
+
+                    # 执行安装脚本并检查结果
+                    install_sh_path = plugin_install_path + '/install.sh'
+                    if os.path.exists(install_sh_path):
+                        exit_code, output = public.ExecShell('cd ' + plugin_install_path + ' && bash install.sh install 2>&1')
+                        # 记录安装日志
+                        public.writeFile('/tmp/panelShell.pl', str(output) if output else '')
+                        _waf_debug_log('install_sh_result', '安装脚本执行结果', {
+                            'plugin': plugin_name,
+                            'exit_code': exit_code,
+                            'output': str(output)[:500] if output else None
+                        })
+
                     public.ExecShell("rm -rf /www/server/panel/temp/*")
 
                     # 复制图标
@@ -1147,6 +1173,11 @@ class panelPlugin:
                         if os.path.exists(icon_sfile):
                             import shutil
                             shutil.copyfile(icon_sfile, icon_dfile)
+
+                    # 验证安装是否成功 - 检查关键文件是否存在
+                    info_json = plugin_install_path + '/info.json'
+                    if not os.path.exists(info_json):
+                        return public.returnMsg(False, '安装失败: 插件info.json不存在')
 
                     public.WriteLog('软件管理', '安装插件[{}]'.format(plugin_name))
                     return public.returnMsg(True, '安装成功!')
@@ -2398,6 +2429,16 @@ class panelPlugin:
     def check_status(self, softInfo):
         # 已修改: 检查本地插件目录是否存在，若存在则标记为已安装
         plugin_path = '/www/server/panel/plugin/' + softInfo.get('name', '')
+
+        # 调试日志 - 检测btwaf安装状态
+        if softInfo.get('name') == 'btwaf':
+            _waf_debug_log('check_status_btwaf', '检测btwaf安装状态', {
+                'plugin_path': plugin_path,
+                'exists': os.path.exists(plugin_path),
+                'install_checks': softInfo.get('install_checks'),
+                'install_checks_exists': os.path.exists(softInfo.get('install_checks', '')) if softInfo.get('install_checks') else None
+            })
+
         if os.path.exists(plugin_path):
             softInfo['setup'] = True
         else:

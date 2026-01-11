@@ -84,3 +84,7 @@ CHANGELOG.local.md
 cj/
 nul
 claude.md
+
+# WAF Plugin (不上传到GitHub，单独管理)
+plugin/btwaf/
+plugin/btwaf.zip
