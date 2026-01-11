@@ -859,6 +859,8 @@ var bt_waf = {
 				that.ajaxTask('remove_waf_drop_ip', { ip: _ip }, function (res) {
 					layer.msg(res.msg, { icon: res.status ? 1 : 2 });
 					$.post('/btwaf/get_total_all_overview.json', function (res) {
+						// 安全检查 - MissChina
+						if (!res || !res.map || typeof res.map !== 'object') res = {map: {top10_ip: [], count: 0, '24_day_count': 0}};
 						that.create_block_table(res);
 					});
 				});
@@ -1433,6 +1435,8 @@ var bt_waf = {
 						$('.max_content .ng-ip-list').css('height', '600px');
 						$('.max_content .ng-maximize').addClass('ng-minsize').removeClass('ng-maximize').css('right', '25px');
 						$.post('/btwaf/get_total_all_overview.json', function (res) {
+							// 安全检查 - MissChina
+							if (!res || !res.map || typeof res.map !== 'object') res = {map: {top10_ip: [], count: 0, '24_day_count': 0}};
 							that.create_attack_list(res);
 							that.create_attack_map(res);
 						});
@@ -5501,12 +5505,23 @@ var bt_waf = {
 	 */
 	getServerLongitude: function (callback) {
 		$.post('/btwaf/get_server_longitude.json', function (res) {
-			if (res.status) callback(res);
+			// 安全检查：确保数据有效 - MissChina
+			if (res.status && res.msg && typeof res.msg === 'object' && res.msg.longitude) {
+				callback(res);
+			} else {
+				// 返回默认位置（北京）
+				callback({status: false, msg: {longitude: 116.4, latitude: 39.9, ip_address: ''}});
+			}
 		});
 	},
 	getAttackMap: function (callback) {
 		$.post('/btwaf/gongji_map.json', function (res) {
-			if (res.status) callback(res);
+			// 安全检查 - MissChina
+			if (res && res.status && res.msg && typeof res.msg === 'object') {
+				callback(res);
+			} else {
+				callback({status: true, msg: []});
+			}
 		});
 	},
 
@@ -5609,6 +5624,12 @@ var bt_waf = {
 		);
 		$.get('/btwaf/static/js/world_fix.js', function () {
 			$.post('/btwaf/get_all_tu.json', function (res) {
+				// 安全检查：确保数据有效 - MissChina
+				if (!res || typeof res !== 'object' || res.msg === '') {
+					res = {server_name_top5: [], dongtai: []};
+				}
+				if (!res.server_name_top5) res.server_name_top5 = [];
+				if (!res.dongtai) res.dongtai = [];
 				var top5 = '',
 					_dynamic_html = '';
 				$.each(res.server_name_top5, function (index, item) {
@@ -5661,6 +5682,11 @@ var bt_waf = {
 		// 	$('.all-intercept .intercept-num').html(res.total.total);
 		// });
 		$.post('/btwaf/get_total_all_overview.json', function (res) {
+			// 安全检查：确保数据有效 - MissChina
+			if (!res || !res.map || typeof res.map !== 'object') {
+				res = {map: {top10_ip: [], count: 0, '24_day_count': 0}};
+			}
+			if (!res.map.top10_ip) res.map.top10_ip = [];
 			var html = '';
 			$.each(res.map.top10_ip, function (index, item) {
 				html +=
