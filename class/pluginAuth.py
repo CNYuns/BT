@@ -97,8 +97,7 @@ class Plugin:
                         plugin['buy'] = True  # 标记为已购买
                         plugin['isBuy'] = True  # 标记为已购买
                         plugin['is_buy'] = True  # 标记为已购买
-                        plugin['price'] = 0  # 价格设为0
-                        plugin['free'] = True  # 标记为免费
+                        # 保留原价显示，不修改price和free - MissChina
                         plugin['state'] = 1  # 状态正常
                         plugin['auth_state'] = 1  # 授权状态正常
 
