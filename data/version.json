@@ -1,20 +1,20 @@
 {
     "OfficialVersion": {
-        "version": "11.3.57",
-        "update_msg": "v11.3.57 - 检查更新改用GitHub源",
+        "version": "11.3.58",
+        "update_msg": "v11.3.58 - 添加付费插件下载脚本",
         "plugin_restrictions": {},
-        "update_time": 1736582400
+        "update_time": 1736668800
     },
     "OfficialVersionLatest": {
-        "version": "11.3.57",
-        "update_msg": "v11.3.57 - 检查更新改用GitHub源",
+        "version": "11.3.58",
+        "update_msg": "v11.3.58 - 添加付费插件下载脚本",
         "plugin_restrictions": {},
-        "update_time": 1736582400
+        "update_time": 1736668800
     },
-    "version": "11.3.57",
+    "version": "11.3.58",
     "is_beta": 0,
     "force": false,
     "msg": "",
-    "beta": {"version": "11.3.57"},
+    "beta": {"version": "11.3.58"},
     "local_beta": 0
 }
