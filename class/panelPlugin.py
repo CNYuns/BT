@@ -647,9 +647,14 @@ class panelPlugin:
 
     # 自定义插件下载URL配置 (绕过官方服务器)
     # 统一前缀，插件名自动拼接为 {前缀}/{插件名}.zip
-    __custom_plugin_url_prefix = 'https://github.com/MissChina/file/releases/download/1.0'
-    # 启用自定义下载的插件列表
-    __custom_plugin_list = ['btwaf']
+    __custom_plugin_url_prefix = 'https://github.com/CNYuns/files/releases/download/v1.0.0'
+    # 启用自定义下载的插件列表 (17个付费插件)
+    __custom_plugin_list = [
+        'bt_ssh_auth', 'btwaf', 'btwaf_httpd', 'load_balance', 'masterslave',
+        'monitor', 'msg_push', 'mysql_replicate', 'nfs_tools', 'ossfs',
+        'rsync', 'syssafe', 'tamper_core', 'tamper_proof_refactored',
+        'task_manager', 'total', 'wp_toolkit'
+    ]
 
     def __get_custom_plugin_url(self, plugin_name):
         '''获取自定义插件下载URL'''

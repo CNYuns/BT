@@ -4297,22 +4297,13 @@ cd %s
     # 提交误报
     def send_baota(self, get):
         '''
-            @name 提交误报 进行木马扫描
+            @name 提交误报 进行木马扫描 - 已禁用云端上报 - MissChina
             @author MissChina
             @param path 需要扫描的目录
             @return 实时返回扫描的信息
         '''
-        try:
-            userInfo = json.loads(public.ReadFile('/www/server/panel/data/userInfo.json'))
-            cloudUrl = 'http://www.bt.cn/api/bt_waf/reportTrojanError'
-            pdata = {
-                'name': get.filename, 'inputfile': public.ReadFile(get.filename), "md5": public.Md5(get.filename),
-                "access_key": userInfo['access_key'], "uid": userInfo['uid']
-            }
-            ret = public.httpPost(cloudUrl, pdata)
-            return public.returnMsg(True, "提交误报完成")
-        except:
-            return public.returnMsg(True, "提交误报完成")
+        # 云端误报上报已禁用
+        return public.returnMsg(True, "提交误报完成（云端上报已禁用）")
 
     def __is_permanent(self, expire):
         now = int(time.time())

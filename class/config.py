@@ -4230,13 +4230,13 @@ class config:
 
         pkey = public.Md5(error_infos["ERROR_ID"])
 
-        # 提交
-        if not public.cache_get(pkey):
-            try:
-                public.run_thread(public.httpPost, ("https://api.bt.cn/bt_error/index.php", error_infos))
-                public.cache_set(pkey, 1, 1800)
-            except Exception as e:
-                pass
+        # 提交 - 已禁用错误上报 - MissChina
+        # if not public.cache_get(pkey):
+        #     try:
+        #         public.run_thread(public.httpPost, ("https://api.bt.cn/bt_error/index.php", error_infos))
+        #         public.cache_set(pkey, 1, 1800)
+        #     except Exception as e:
+        #         pass
 
         return public.returnMsg(True, "OK")
     # 设置面板界面配置

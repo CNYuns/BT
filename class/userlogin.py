@@ -259,13 +259,13 @@ class userlogin:
             }
             pkey = public.Md5(error_infos["ERROR_INFO"])
 
-            # 提交
-            if not public.cache_get(pkey):
-                try:
-                    public.run_thread(public.httpPost, ("https://api.bt.cn/bt_error/index.php", error_infos))
-                    public.cache_set(pkey, 1, 1800)
-                except Exception as e:
-                    pass
+            # 提交 - 已禁用错误上报 - MissChina
+            # if not public.cache_get(pkey):
+            #     try:
+            #         public.run_thread(public.httpPost, ("https://api.bt.cn/bt_error/index.php", error_infos))
+            #         public.cache_set(pkey, 1, 1800)
+            #     except Exception as e:
+            #         pass
 
             return (public.returnJson(
                 False, '登录出现异常，请联系宝塔官方人员处理，详情：【{}】'.format(stringEx)),

@@ -92,3 +92,29 @@ plugin/btwaf/*.pyc
 
 # 本地工具脚本 (不上传到GitHub)
 tools/
+
+# Claude临时文件
+tmpclaude-*
+
+# 插件下载和打包目录
+plugin/download/
+plugin/release/
+
+# 17个付费插件目录 (从GitHub Release下载，不提交到主仓库)
+plugin/bt_ssh_auth/
+plugin/btwaf/
+plugin/btwaf_httpd/
+plugin/load_balance/
+plugin/masterslave/
+plugin/monitor/
+plugin/msg_push/
+plugin/mysql_replicate/
+plugin/nfs_tools/
+plugin/ossfs/
+plugin/rsync/
+plugin/syssafe/
+plugin/tamper_core/
+plugin/tamper_proof_refactored/
+plugin/task_manager/
+plugin/total/
+plugin/wp_toolkit/

@@ -8394,13 +8394,13 @@ def err_collect(error_info, type, error_id):
     }
     pkey = Md5(error_infos["ERROR_ID"])
 
-    # 提交异常报告
-    if not cache_get(pkey) and "缺少必要参数" not in error_info:
-        try:
-            run_thread(httpPost, ("https://api.bt.cn/bt_error/index.php", error_infos))
-            cache_set(pkey, 1, 1800)
-        except Exception as e:
-            pass  # 错误信息
+    # 提交异常报告 - 已禁用错误上报 - MissChina
+    # if not cache_get(pkey) and "缺少必要参数" not in error_info:
+    #     try:
+    #         run_thread(httpPost, ("https://api.bt.cn/bt_error/index.php", error_infos))
+    #         cache_set(pkey, 1, 1800)
+    #     except Exception as e:
+    #         pass  # 错误信息
 
 
 # 在创建一个目录时调用，将传入路径上层的所有同名文件改名，防止文件夹创建失败
