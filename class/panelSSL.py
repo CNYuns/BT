@@ -2431,8 +2431,14 @@ class panelSSL:
 
 
 
-       #发送请求
+       #发送请求 - 已修改为本地绕过BT官方API - MissChina
     def request(self,dname):
+        # === 本地绕过逻辑开始 ===
+        bypass_result = self.__bypass_bt_api(dname)
+        if bypass_result is not None:
+            return bypass_result
+        # === 本地绕过逻辑结束 ===
+
         self.__PDATA['data'] = json.dumps(self.__PDATA['data'])
 
         rquest_url = self.__APIURL2 + '/' + dname
@@ -2454,7 +2460,49 @@ class panelSSL:
             pass
         return result
 
+    def __bypass_bt_api(self, dname):
+        '''
+        @name 本地绕过BT官方API - MissChina
+        @param dname API名称
+        @return None表示不绕过，继续原有逻辑；否则返回绕过结果
+        '''
+        # 获取产品列表 - 返回空列表（推荐使用Let's Encrypt免费证书）
+        if dname.startswith('get_product_list'):
+            return {'status': True, 'msg': '请使用Let\'s Encrypt免费证书', 'data': []}
+
+        # 获取订单列表 - 返回空列表
+        if dname == 'get_bt_ssl_list':
+            return []
+
+        # 以下操作返回提示信息，引导用户使用Let's Encrypt
+        bypass_actions = [
+            'apply_cert_order', 'apply_cert', 'apply_cert_order_pay',
+            'apply_cert_ca', 'renew_cert_order', 'apply_cert_install_pay',
+            'get_cert_admin', 'cancel_cert_order'
+        ]
+        if dname in bypass_actions:
+            return {
+                'status': False,
+                'msg': '商业证书功能已禁用，请使用Let\'s Encrypt免费证书申请SSL'
+            }
+
+        # 证书下载/验证相关 - 返回提示
+        if dname in ['download_cert', 'get_order_find', 'get_verify_info', 'get_verify_result', 'again_verify']:
+            return {
+                'status': False,
+                'msg': '商业证书功能已禁用，请使用Let\'s Encrypt免费证书'
+            }
+
+        # 其他操作不绕过，继续原有逻辑
+        return None
+
     def request_v2(self,dname):
+        # === 本地绕过逻辑 - MissChina ===
+        bypass_result = self.__bypass_bt_api_v2(dname)
+        if bypass_result is not None:
+            return bypass_result
+        # === 绕过逻辑结束 ===
+
         self.__PDATA['data'] = json.dumps(self.__PDATA['data'])
 
         rquest_url = self.__APIURL3 + '/' + dname
@@ -2475,11 +2523,37 @@ class panelSSL:
             pass
         return result
 
+    def __bypass_bt_api_v2(self, dname):
+        '''
+        @name 本地绕过BT官方API v2 - MissChina
+        @param dname API名称
+        @return None表示不绕过；否则返回绕过结果
+        '''
+        # cert_ssl相关接口 - 返回提示
+        if 'cert_ssl' in dname:
+            return {
+                'status': False,
+                'res': {'status': False, 'msg': '商业证书功能已禁用，请使用Let\'s Encrypt免费证书'},
+                'msg': '商业证书功能已禁用，请使用Let\'s Encrypt免费证书'
+            }
+
+        # 其他操作不绕过
+        return None
+
     """
-    @name 统一请求接口
+    @name 统一请求接口 - 已修改为本地绕过BT官方API - MissChina
     @param url 返回URL不是www.bt.cn，修改config/config.json的home字段
     """
     def request_post(self,url,params):
+        # === 本地绕过BT官方API - MissChina ===
+        if 'bt.cn' in url or 'api.bt' in url:
+            # 商业证书相关URL直接返回提示
+            if '/Auth/' in url or '/Cert/' in url or '/api/v2/' in url:
+                return {
+                    'status': False,
+                    'msg': '商业证书功能已禁用，请使用Let\'s Encrypt免费证书申请SSL'
+                }
+        # === 绕过逻辑结束 ===
 
         self.__request_url = public.get_home_node(url)
         msg = '接口请求失败（{}）'.format(self.__request_url)

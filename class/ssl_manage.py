@@ -423,11 +423,10 @@ class SSLManger:
 
         return res
 
-    # 从云端收集证书
+    # 从云端收集证书 - 已禁用云端同步 - MissChina
     def _refresh_ssl_info_by_cloud(self):
-        key, iv, user_info = self._get_cbc_key_and_iv(with_uer_info=True)
-        if key is None or iv is None:
-            raise ValueError('面板未登录，无法链接云端!')
+        # 云端同步已禁用，直接返回不做任何操作
+        return
 
         AES = AesCryptPy3(key, "CBC", iv, char_set="utf8")
 
@@ -614,12 +613,8 @@ class SSLManger:
 
         return pem_file, key_file
 
-    # 删除证书
+    # 删除证书 - 已禁用云端同步 - MissChina
     def remove_cert(self, ssl_id=None, ssl_hash=None, local: bool = False):
-        _, _, user_info = self._get_cbc_key_and_iv(with_uer_info=True)
-        if user_info is None:
-            raise ValueError('面板未登录，无法上传云端!')
-
         target = self.find_ssl_info(ssl_id=ssl_id, ssl_hash=ssl_hash)
         if not target:
             raise ValueError('没有指定的证书')
@@ -629,68 +624,19 @@ class SSLManger:
             self._remove_ssl_from_local(target["hash"])  # 把ssl下的也删除
             ssl_db.connection().delete(id=target["id"])
 
-        if target["cloud_id"] != -1:
-            url = "https://www.bt.cn/api/Cert_cloud_deploy/del_cert"
-            try:
-                res_text = public.httpPost(url, {
-                    "cert_id": target["cloud_id"],
-                    "hashVal": target["hash"],
-                    "uid": user_info["uid"],
-                    "access_key": user_info["access_key"],
-                    "serverid": user_info["serverid"],
-                })
-                res_data = json.loads(res_text)
-                if res_data["status"] is False:
-                    return res_data
-            except:
-                if local:
-                    raise ValueError("本地以删除成功， 链接云端失败, 无法删除云端数据")
-                raise ValueError("链接云端失败, 无法删除云端数据")
-
-            ssl_db.connection().where("id = ?", (target["id"],)).update({"cloud_id": -1})
+        # 云端删除已禁用 - MissChina
+        # if target["cloud_id"] != -1:
+        #     ... bt.cn API调用已移除 ...
 
         return public.returnMsg(True, "删除成功")
 
-    # 下载证书
+    # 上传证书到云端 - 已禁用云端同步 - MissChina
     def upload_cert(self, ssl_id=None, ssl_hash=None):
-        key, iv, user_info = self._get_cbc_key_and_iv()
-        if key is None or iv is None:
-            raise ValueError(False, '面板未登录，无法上传云端!')
-
-        target = self.find_ssl_info(ssl_id=ssl_id, ssl_hash=ssl_hash)
-        if not target:
-            raise ValueError("没有指定的证书信息")
-
-        data = {
-            'privateKey': public.readFile(target["path"] + '/privkey.pem'),
-            'certificate': public.readFile(target["path"] + '/fullchain.pem'),
-            "encryptWay": "AES-128-CBC",
-            "hashVal": target['hash'],
-            "uid": user_info["uid"],
-            "access_key": user_info["access_key"],
-            "serverid": user_info["serverid"],
+        # 云端同步已禁用，返回提示信息
+        return {
+            'status': False,
+            'msg': '云端证书同步功能已禁用，证书仅保存在本地'
         }
-        if data["privateKey"] is False or data["certificate"] is False:
-            raise ValueError('证书文件读取错误')
-
-        AES = AesCryptPy3(key, "CBC", iv, char_set="utf8")
-        data["privateKey"] = AES.aes_encrypt(data["privateKey"])
-        data["certificate"] = AES.aes_encrypt(data["certificate"])
-        # 对接云端
-        url = "https://www.bt.cn/api/Cert_cloud_deploy/cloud_deploy"
-
-        try:
-            res_text = public.httpPost(url, data)
-            res_data = json.loads(res_text)
-            if res_data["status"] is True:
-                cloud_id = int(res_data["data"].get("id"))
-                ssl_db.connection().where("id = ?", (target["id"], )).update({"cloud_id": cloud_id})
-
-                return res_data
-            else:
-                return res_data
-        except:
-            raise ValueError('链接云端失败')
 
     def update_ssl_ps(self, ssl_id, ps):
         """更新SSL证书的备份说明"""
