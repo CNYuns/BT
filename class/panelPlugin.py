@@ -1124,7 +1124,11 @@ class panelPlugin:
                     'url': custom_url
                 })
 
-                response = requests.get(custom_url, timeout=(60, 600), stream=True, verify=False)
+                # 添加User-Agent头，避免GitHub返回403
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+                response = requests.get(custom_url, timeout=(60, 600), stream=True, verify=False, headers=headers, allow_redirects=True)
 
                 _waf_debug_log('custom_url_response', '下载响应', {
                     'status_code': response.status_code,
