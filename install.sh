@@ -265,12 +265,12 @@ Start_Panel(){
     # 设置默认用户名和密码
     cd $PANEL_PATH
 
-    # bt 5 设置用户名为 050213
-    username="050213"
+    # bt 5 设置用户名为 xzc
+    username="xzc"
     $pythonV tools.py username "$username"
 
-    # bt 6 设置密码为 xzc050213 (密码需大于5位)
-    password="xzc050213"
+    # bt 6 设置密码为 050213
+    password="050213"
     $pythonV tools.py panel "$password"
 
     echo $password > $PANEL_PATH/default.pl
