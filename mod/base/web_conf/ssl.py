@@ -621,25 +621,10 @@ class RealSSLManger:
             result.append(res)
         return result
 
-    # 下载证书
+    # 下载证书 - 云端同步已禁用 - MissChina
     def upload_cert(self, ssl_id=None, ssl_hash=None) -> Dict:
-        key, iv, user_info = self._get_cbc_key_and_iv()
-        if key is None or iv is None:
-            raise ValueError(False, '面板未登录，无法上传云端!')
-
-        target = self.find_ssl_info(ssl_id=ssl_id, ssl_hash=ssl_hash)
-        if not target:
-            raise ValueError("没有指定的证书信息")
-
-        data = {
-            'privateKey': public.readFile(target["path"] + '/privkey.pem'),
-            'certificate': public.readFile(target["path"] + '/fullchain.pem'),
-            "encryptWay": "AES-128-CBC",
-            "hashVal": target['hash'],
-            "uid": user_info["uid"],
-            "access_key": user_info["access_key"],
-            "serverid": user_info["serverid"],
-        }
+        # 云端同步已禁用，返回提示信息
+        return {'status': False, 'msg': '云端证书同步已禁用，证书仅保存在本地'}
         if data["privateKey"] is False or data["certificate"] is False:
             raise ValueError('证书文件读取错误')
 

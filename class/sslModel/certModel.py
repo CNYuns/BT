@@ -684,28 +684,8 @@ class main(sslBase):
             return public.ReturnMsg(False, "操作错误：" + str(e))
 
     def upload_cert(self, ssl_id=None, ssl_hash=None):
-        key, iv, user_info = self._get_cbc_key_and_iv()
-        if key is None or iv is None:
-            raise ValueError(False, '面板未登录，无法上传云端!')
-
-        target = self.find_ssl_info(ssl_id=ssl_id, ssl_hash=ssl_hash)
-        if not target:
-            raise ValueError("没有指定的证书信息")
-
-        data = {
-            'privateKey': public.readFile(target["path"] + '/privkey.pem'),
-            'certificate': public.readFile(target["path"] + '/fullchain.pem'),
-            "encryptWay": "AES-128-CBC",
-            "hashVal": target['hash'],
-            "uid": user_info["uid"],
-            "access_key": user_info["access_key"],
-            "serverid": user_info["serverid"],
-        }
-
-        if data["privateKey"] is False or data["certificate"] is False:
-            raise ValueError('证书文件读取错误')
-
-        AES = AesCryptPy3(key, "CBC", iv, char_set="utf8")
+        # 云端同步已禁用 - MissChina
+        return {'status': False, 'msg': '云端证书同步已禁用，证书仅保存在本地'}
         data["privateKey"] = AES.aes_encrypt(data["privateKey"])
         data["certificate"] = AES.aes_encrypt(data["certificate"])
         # 对接云端

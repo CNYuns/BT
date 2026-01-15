@@ -262,22 +262,35 @@ Start_Panel(){
     /etc/init.d/bt start
     sleep 2
 
-    # 启动后设置用户名密码
+    # 设置默认用户名和密码
     cd $PANEL_PATH
-    $pythonV tools.py username
-    password=$(head -c 16 /dev/urandom | md5sum | head -c 8)
-    username=$($pythonV tools.py panel $password)
+
+    # bt 5 设置用户名为 050213
+    username="050213"
+    $pythonV tools.py username "$username"
+
+    # bt 6 设置密码为 xzc
+    password="xzc"
+    $pythonV tools.py panel "$password"
+
     echo $password > $PANEL_PATH/default.pl
     chmod 600 $PANEL_PATH/default.pl
 }
 
 Get_Ip_Address(){
+    # 获取外网IP
     getIpAddress=$(curl -4 -sS --connect-timeout 5 -m 10 https://api.bt.cn/Api/getIpAddress 2>/dev/null)
     if [ -z "$getIpAddress" ]; then
         getIpAddress=$(curl -4 -sS --connect-timeout 5 -m 10 ip.sb 2>/dev/null)
     fi
     if [ -z "$getIpAddress" ]; then
-        getIpAddress=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^127\.|^255\.|^0\." | head -n 1)
+        getIpAddress=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^127\.|^255\.|^0\.|^10\.|^172\.(1[6-9]|2[0-9]|3[01])\.|^192\.168\." | head -n 1)
+    fi
+
+    # 获取内网IP
+    localIpAddress=$(ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E "^10\.|^172\.(1[6-9]|2[0-9]|3[01])\.|^192\.168\." | head -n 1)
+    if [ -z "$localIpAddress" ]; then
+        localIpAddress=$(hostname -I 2>/dev/null | awk '{print $1}')
     fi
 }
 
@@ -290,6 +303,9 @@ Show_Result(){
     echo "=================================================================="
     echo ""
     echo " 外网面板地址: http://${getIpAddress}:${panelPort}${auth_path}"
+    if [ -n "$localIpAddress" ]; then
+        echo " 内网面板地址: http://${localIpAddress}:${panelPort}${auth_path}"
+    fi
     echo ""
     echo " username: $username"
     echo " password: $password"

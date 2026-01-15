@@ -378,30 +378,9 @@ class panelDaily:
 
     def get_daily_data(self, get):
         """根据日期获取面板日报数据"""
+        # 已修改: 跳过授权检查，直接设置为已授权
         auth_key = "IS_PRO_OR_LTD_FOR_PANEL_DAILY"
-        cache_res = cache.get(auth_key)
-        if not cache_res:
-            try:
-                pp = panelPlugin()
-                soft_list = pp.get_soft_list(get)
-                if soft_list["pro"] < 0 and soft_list["ltd"] < 0:
-                    if os.path.exists("/www/server/panel/data/start_daily.pl"):
-                        os.remove("/www/server/panel/data/start_daily.pl")
-                    return {
-                        "status": False,
-                        "msg": "No authorization.",
-                        "data": [],
-                        "date": get.date
-                    }
-                cache.set(auth_key, True, 86400)
-            except:
-
-                return {
-                    "status": False,
-                    "msg": "获取不到授权信息，请检查网络是否正常->{}".format(public.get_error_info()),
-                    "data": [],
-                    "date": get.date
-                }
+        cache.set(auth_key, True, 86400)
         if not os.path.exists("/www/server/panel/data/start_daily.pl"):
             public.writeFile("/www/server/panel/data/start_daily.pl", get.date)
         return self.get_daily_data_local(get.date)

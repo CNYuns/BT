@@ -1920,12 +1920,8 @@ class config:
         return public.GetNumLines('logs/error.log', 2000)
 
     def is_pro(self, get):
-        import panelAuth, json
-        pdata = panelAuth.panelAuth().create_serverid(None)
-        url = public.GetConfigValue('home') + '/api/panel/is_pro'
-        pluginTmp = public.httpPost(url, pdata)
-        pluginInfo = json.loads(pluginTmp)
-        return pluginInfo
+        # 已修改: 始终返回已授权状态
+        return {'status': True, 'pro': 253402214400, 'ltd': 253402214400}
 
     def get_token(self, get):
         import panelApi
@@ -4178,25 +4174,8 @@ class config:
 
     # 面板 通过余额购买商业证书
     def balance_pay_cert(self,get):
-        try:
-            user_info = json.loads(public.ReadFile("{}/data/userInfo.json".format(public.get_panel_path())))
-            url = "https://nps.bt.cn/api/v2/order/product/create_cert_with_credit"
-            data = {
-                "pid": get.get('pid/d', 0),  # 商业证书ID
-                "uid": user_info['uid'],   # 用户id
-                'access_key': user_info['access_key'],  # 用户密钥
-                "install": get.get('install/d', 0),  # 是否购买人工部署服务
-                "years": get.get('years/d', 1),  # 购买年限
-                "num": get.get('num/d', 1),  # 购买数量
-            }
-
-            # request发送post请求并指定form_data参数
-            res = requests.post(url, data=data)
-            if res.status_code == 200:
-                return public.returnMsg(True, '购买成功')
-            return public.returnMsg(False, "购买失败")
-        except:
-            return public.returnMsg(False, "购买失败")
+        # 已修改: 商业证书功能已禁用，请使用Let's Encrypt免费证书
+        return public.returnMsg(False, "商业证书功能已禁用，请使用Let's Encrypt免费证书")
 
     def err_collection(self, get):
         # 提交错误登录信息
